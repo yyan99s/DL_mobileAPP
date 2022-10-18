@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "987924862795",
+    "project_id": "dlapp-1da9a",
+    "storage_bucket": "dlapp-1da9a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:987924862795:android:567f1b4580b0df2fdebace",
+        "android_client_info": {
+          "package_name": "com.directlending.dlapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "987924862795-07rfnupjp0pqe7ohsjebv7mdvuv81i4c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCSU_klnftS7n8KY6lhs_xrMqBqewuvGQA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "987924862795-07rfnupjp0pqe7ohsjebv7mdvuv81i4c.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

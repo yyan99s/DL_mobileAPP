@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Direct Lending</string>
+    <string name="direct_lending">Direct Lending</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="login">LOGIN</string>
+</resources>
