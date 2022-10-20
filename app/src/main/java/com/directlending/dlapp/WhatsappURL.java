@@ -1,25 +1,22 @@
 package com.directlending.dlapp;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
-import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
+
 import android.net.Uri;
-import android.os.Build;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
+
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Toast;
+
 
 import com.google.firebase.messaging.FirebaseMessaging;
 
@@ -30,24 +27,15 @@ public class WhatsappURL extends AppCompatActivity {
     AppCompatActivity activity;
     SharedPreferences sp;
 
-    // Declare the launcher at the top of your Activity/Fragment:
-    private final ActivityResultLauncher<String> requestPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
-                    // FCM SDK (and your app) can post notifications.
-                } else {
-                    // TODO: Inform user that that your app will not show notifications.
-                }
-            });
-
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTheme(R.style.Theme_DLapp);
         setContentView(R.layout.whatsapp_url);
 
-        Log.i("preferences", "hhhhh");
+
         sp = getApplicationContext().getSharedPreferences("DLuserPrefs", Context.MODE_PRIVATE);
-        Log.i("preferences", "iiiiii");
         SharedPreferences.Editor editor = sp.edit();
 
         activity = this;
@@ -57,8 +45,26 @@ public class WhatsappURL extends AppCompatActivity {
         String Pusername = sp.getString("username","");
         String Ppassword = sp.getString("password","");
         String PJWTtoken = sp.getString("JWTtoken","");
+        String PFCMtoken = sp.getString("FCMtoken", "");
         Log.i("preferences", Pusername);
         Log.i("preferences", Ppassword);
+
+        if(PFCMtoken.equals("")){
+            FirebaseMessaging.getInstance().getToken()
+                    .addOnCompleteListener(task -> {
+                        if (!task.isSuccessful()) {
+                            Log.w("FAILED FCM", "Fetching FCM registration token failed", task.getException());
+                            return;
+                        }
+
+                        // Get new FCM registration token
+                        String token = task.getResult();
+                        editor.putString("FCMtoken", token);
+                        editor.commit();
+
+                        Log.d("FCM TOKEN", token);
+                    });
+        }
 
         eWeb = (WebView) findViewById(R.id.whatsappWeb);
         eWeb.setWebViewClient(new WebViewClient() {
@@ -74,73 +80,43 @@ public class WhatsappURL extends AppCompatActivity {
                 progDailog.dismiss();
             }
         });
-        if (!Pusername.equals("") && !Ppassword.equals("")){
-            askNotificationPermission();
-            FirebaseMessaging.getInstance().getToken()
-                    .addOnCompleteListener(task -> {
-                        if (!task.isSuccessful()) {
-                            Log.w("FAILED FCM", "Fetching FCM registration token failed", task.getException());
-                            return;
-                        }
-
-                        // Get new FCM registration token
-                        String token = task.getResult();
-                        editor.putString("FCMtoken", token);
-                        editor.commit();
-
-                        Log.d("FCM TOKEN OIKKKKK", token);
-                        Toast.makeText(WhatsappURL.this, token, Toast.LENGTH_SHORT).show();
-                    });
-            String PFCMToken = sp.getString("FCMtoken", "");
+        if (!Pusername.equals("") && !Ppassword.equals("") && !PJWTtoken.equals("")){
             eWeb.setWebChromeClient(new WebChromeClient());
             eWeb.getSettings().setJavaScriptEnabled(true);
-            Uri WhatsappURL = Uri.parse("https://dev.directlending.com.my/serv/servApplyMobile.html" + "?jwtToken=" + PJWTtoken + "&FCMToken=" + PFCMToken);
+            Uri WhatsappURL = Uri.parse("https://dev.directlending.com.my/directlending/whatsapp/messagePage" + "?whatsappJwtToken=" + PJWTtoken);
             String URL = String.valueOf(WhatsappURL);
             eWeb.loadUrl(URL);
             Log.i("WhatsappURL", String.valueOf(WhatsappURL));
-            Log.i("OPEN2NDtime","Am I In?");
         }else{
             openLogin();
+            progDailog.dismiss();
         }
+    }
+
+    @Override
+    public void onBackPressed(){
+        super.onBackPressed();
     }
 
     public void openLogin(){
         Intent intent = new Intent(WhatsappURL.this, LoginPage.class);
         startActivity(intent);
+        finish();
     }
 
     public void TokenCheck(String url){
-        boolean URLToken = url.matches("(.*)jwtToken(.*)");
+        boolean URLToken = url.matches("(.*)whatsappJwtToken(.*)");
 
         if (!URLToken) {
             SharedPreferences.Editor editor = sp.edit();
             editor.putString("JWTtoken", null);
             editor.commit();
-            //dbHandler.deleteToken(1);
             eWeb.clearCache(true);
             eWeb.clearHistory();
             eWeb.destroy();
+            progDailog.dismiss();
             openLogin();
-            Log.i("shitttttttttt", "why no token!!!!");
-        }
-    }
-
-    private void askNotificationPermission() {
-        // This is only necessary for API level >= 33 (TIRAMISU)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) ==
-                    PackageManager.PERMISSION_GRANTED) {
-                // FCM SDK (and your app) can post notifications.
-            } else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
-                // TODO: display an educational UI explaining to the user the features that will be enabled
-                //       by them granting the POST_NOTIFICATION permission. This UI should provide the user
-                //       "OK" and "No thanks" buttons. If the user selects "OK," directly request the permission.
-                //       If the user selects "No thanks," allow the user to continue without notifications.
-            } else {
-                // Directly ask for the permission
-                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
-            }
+            Log.i("NO JWT token", "why no token!!!!");
         }
     }
 }

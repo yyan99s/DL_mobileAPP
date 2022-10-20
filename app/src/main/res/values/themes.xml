@@ -1,16 +1,21 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.DLapp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.DLapp" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/blue</item>
+        <item name="colorPrimary">@color/orange</item>
         <item name="colorPrimaryVariant">@color/blue</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/blue</item>
+        <item name="colorSecondary">@color/orange</item>
         <item name="colorSecondaryVariant">@color/blue</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@color/blue</item>
         <!-- Customize your theme here. -->
+    </style>
+    
+    <style name="splashScreenTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_image</item>
+        <item name="android:statusBarColor">@color/blue</item>
     </style>
 </resources>
